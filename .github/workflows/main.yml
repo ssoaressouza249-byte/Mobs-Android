@@ -28,7 +28,7 @@ jobs:
             rm -rf temp_extract "$ZIP_FILE"
           fi
 
-      - name: Rebrand to Mobs Android and Upgrade AGP/Gradle
+      - name: Rebrand to Mobs Android
         run: |
           find lib android/app/src/main/res -type f \( -name "*.dart" -o -name "*.xml" \) -exec sed -i 's/Moha Lab Boost/Mobs Android Boost/g' {} +
           find lib android/app/src/main/res -type f \( -name "*.dart" -o -name "*.xml" \) -exec sed -i 's/Moha Lab/Mobs Android/g' {} +
@@ -42,34 +42,24 @@ jobs:
           if [ -f "android/app/build.gradle" ]; then
             sed -i 's/applicationId "[^"]*"/applicationId "com.raylan.mobsandroid"/g' android/app/build.gradle
           fi
-          # Atualiza apenas google_mobile_ads para compatibilidade com Gradle 9, mantendo riverpod e notifications originais
-          if [ -f "pubspec.yaml" ]; then
-            sed -i 's/google_mobile_ads:.*/google_mobile_ads: ^7.0.0/g' pubspec.yaml
-          fi
-          find android -type f \( -name "settings.gradle*" -o -name "build.gradle*" \) -exec sed -i 's/8\.1\.0/9.1.1/g' {} +
-          if [ -f "android/gradle/wrapper/gradle-wrapper.properties" ]; then
-            sed -i 's/gradle-[0-9.]*-all.zip/gradle-9.3.1-all.zip/g' android/gradle/wrapper/gradle-wrapper.properties
-            sed -i 's/gradle-[0-9.]*-bin.zip/gradle-9.3.1-bin.zip/g' android/gradle/wrapper/gradle-wrapper.properties
-          fi
 
-      - name: Set up JDK 21
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
+          java-version: '17'
           distribution: 'temurin'
 
-      - name: Set up Flutter
+      - name: Set up Flutter 3.27.4 (Original SDK version)
         uses: subosito/flutter-action@v2
         with:
+          flutter-version: '3.27.4'
           channel: 'stable'
 
-      - name: Install dependencies (keeping original Dart APIs)
-        run: |
-          flutter pub get
-          flutter pub upgrade google_mobile_ads
+      - name: Install dependencies
+        run: flutter pub get
 
       - name: Build Debug APK
-        run: flutter build apk --debug --android-skip-build-dependency-validation
+        run: flutter build apk --debug
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
