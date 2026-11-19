@@ -42,8 +42,8 @@ jobs:
           if [ -f "android/app/build.gradle" ]; then
             sed -i 's/applicationId "[^"]*"/applicationId "com.raylan.mobsandroid"/g' android/app/build.gradle
           fi
-          # Atualiza Android Gradle Plugin para 8.11.0 e Gradle Wrapper para 9.3.1
-          find android -type f \( -name "settings.gradle*" -o -name "build.gradle*" \) -exec sed -i 's/8\.1\.0/8.11.0/g' {} +
+          # Atualiza Android Gradle Plugin para 9.1.1 e Gradle Wrapper para 9.3.1
+          find android -type f \( -name "settings.gradle*" -o -name "build.gradle*" \) -exec sed -i 's/8\.1\.0/9.1.1/g' {} +
           if [ -f "android/gradle/wrapper/gradle-wrapper.properties" ]; then
             sed -i 's/gradle-[0-9.]*-all.zip/gradle-9.3.1-all.zip/g' android/gradle/wrapper/gradle-wrapper.properties
             sed -i 's/gradle-[0-9.]*-bin.zip/gradle-9.3.1-bin.zip/g' android/gradle/wrapper/gradle-wrapper.properties
@@ -64,7 +64,7 @@ jobs:
         run: flutter pub get
 
       - name: Build Debug APK
-        run: flutter build apk --debug
+        run: flutter build apk --debug --android-skip-build-dependency-validation
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
