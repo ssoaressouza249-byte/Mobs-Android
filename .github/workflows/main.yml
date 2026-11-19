@@ -33,8 +33,6 @@ jobs:
           find lib android/app/src/main/res -type f \( -name "*.dart" -o -name "*.xml" \) -exec sed -i 's/Moha Lab Boost/Mobs Android Boost/g' {} +
           find lib android/app/src/main/res -type f \( -name "*.dart" -o -name "*.xml" \) -exec sed -i 's/Moha Lab/Mobs Android/g' {} +
           find lib android/app/src/main/res -type f \( -name "*.dart" -o -name "*.xml" \) -exec sed -i 's/MohaLab/MobsAndroid/g' {} +
-          # Atualiza sintaxe Riverpod 2 -> Riverpod 3 (.valueOrNull -> .value)
-          find lib -type f -name "*.dart" -exec sed -i 's/\.valueOrNull/.value/g' {} +
           if [ -f "android/app/src/main/AndroidManifest.xml" ]; then
             sed -i 's/android:label="[^"]*"/android:label="Mobs Android"/g' android/app/src/main/AndroidManifest.xml
           fi
@@ -44,7 +42,10 @@ jobs:
           if [ -f "android/app/build.gradle" ]; then
             sed -i 's/applicationId "[^"]*"/applicationId "com.raylan.mobsandroid"/g' android/app/build.gradle
           fi
-          rm -f pubspec.lock
+          # Atualiza apenas google_mobile_ads para compatibilidade com Gradle 9, mantendo riverpod e notifications originais
+          if [ -f "pubspec.yaml" ]; then
+            sed -i 's/google_mobile_ads:.*/google_mobile_ads: ^7.0.0/g' pubspec.yaml
+          fi
           find android -type f \( -name "settings.gradle*" -o -name "build.gradle*" \) -exec sed -i 's/8\.1\.0/9.1.1/g' {} +
           if [ -f "android/gradle/wrapper/gradle-wrapper.properties" ]; then
             sed -i 's/gradle-[0-9.]*-all.zip/gradle-9.3.1-all.zip/g' android/gradle/wrapper/gradle-wrapper.properties
@@ -62,10 +63,10 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Upgrade all dependencies to latest
+      - name: Install dependencies (keeping original Dart APIs)
         run: |
-          flutter pub upgrade --major-versions
           flutter pub get
+          flutter pub upgrade google_mobile_ads
 
       - name: Build Debug APK
         run: flutter build apk --debug --android-skip-build-dependency-validation
