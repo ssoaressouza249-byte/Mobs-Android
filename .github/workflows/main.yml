@@ -28,7 +28,7 @@ jobs:
             rm -rf temp_extract "$ZIP_FILE"
           fi
 
-      - name: Rebrand to Mobs Android
+      - name: Rebrand to Mobs Android and Upgrade AGP
         run: |
           find lib android/app/src/main/res -type f \( -name "*.dart" -o -name "*.xml" \) -exec sed -i 's/Moha Lab Boost/Mobs Android Boost/g' {} +
           find lib android/app/src/main/res -type f \( -name "*.dart" -o -name "*.xml" \) -exec sed -i 's/Moha Lab/Mobs Android/g' {} +
@@ -41,6 +41,12 @@ jobs:
           fi
           if [ -f "android/app/build.gradle" ]; then
             sed -i 's/applicationId "[^"]*"/applicationId "com.raylan.mobsandroid"/g' android/app/build.gradle
+          fi
+          # Atualiza Android Gradle Plugin para 8.6.0 e Gradle Wrapper para 8.7
+          find android -type f \( -name "settings.gradle*" -o -name "build.gradle*" \) -exec sed -i 's/8\.1\.0/8.6.0/g' {} +
+          if [ -f "android/gradle/wrapper/gradle-wrapper.properties" ]; then
+            sed -i 's/gradle-[0-9.]*-all.zip/gradle-8.7-all.zip/g' android/gradle/wrapper/gradle-wrapper.properties
+            sed -i 's/gradle-[0-9.]*-bin.zip/gradle-8.7-bin.zip/g' android/gradle/wrapper/gradle-wrapper.properties
           fi
 
       - name: Set up JDK 17
